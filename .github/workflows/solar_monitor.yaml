@@ -3,8 +3,7 @@ name: FusionSolar Monitor
 on:
   workflow_dispatch:  # allows manual "Run workflow" button, for testing
   schedule:
-    - cron: '*/10 * * * *'
-
+  - cron: '4,14,24,34,44,54 2-18 * * *'
 jobs:
   monitor:
     runs-on: ubuntu-latest
