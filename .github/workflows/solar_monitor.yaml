@@ -1,0 +1,31 @@
+name: FusionSolar Monitor
+
+on:
+  workflow_dispatch:  # allows manual "Run workflow" button, for testing
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install fusion_solar_py astral
+
+      - name: Run solar monitor
+        run: python solar_monitor.py
+        env:
+          FUSION_USERNAME: ${{ secrets.FUSION_USERNAME }}
+          FUSION_PASSWORD: ${{ secrets.FUSION_PASSWORD }}
+          FUSION_SUBDOMAIN: ${{ secrets.FUSION_SUBDOMAIN }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
