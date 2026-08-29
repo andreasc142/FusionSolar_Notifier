@@ -1,23 +1,39 @@
-name: Email Ping Test
+"""
+Simple email ping test - confirms GitHub Actions secrets + Gmail sending
+work correctly, before wiring up the actual FusionSolar scraping logic.
+"""
 
-on:
-  workflow_dispatch:  # manual trigger only - adds a "Run workflow" button in the Actions tab
+import os
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from datetime import datetime
 
-jobs:
-  ping:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+EMAIL_FROM = os.environ["EMAIL_FROM"]
+EMAIL_TO = os.environ["EMAIL_TO"]
+EMAIL_APP_PASSWORD = os.environ["EMAIL_APP_PASSWORD"]
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
-      - name: Send test email
-        run: python ping_email.py
-        env:
-          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
-          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+def send_email(subject: str, body: str) -> None:
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = EMAIL_FROM
+    msg["To"] = EMAIL_TO
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(EMAIL_FROM, EMAIL_APP_PASSWORD)
+        server.send_message(msg)
+
+
+if __name__ == "__main__":
+    now = datetime.now()
+    send_email(
+        subject="[FusionSolar Notifier] Test ping",
+        body=(
+            f"This is a test email sent from GitHub Actions.\n"
+            f"Sent at {now:%Y-%m-%d %H:%M:%S}.\n\n"
+            f"If you got this, the pipeline (secrets + email) is wired up correctly."
+        ),
+    )
+    print("Test email sent successfully.")
