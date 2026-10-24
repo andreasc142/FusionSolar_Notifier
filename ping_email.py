@@ -3,6 +3,8 @@ Simple email ping test - confirms GitHub Actions secrets + Gmail sending
 work correctly, before wiring up the actual FusionSolar scraping logic.
 """
 
+# Activity commit
+
 import os
 import smtplib
 import ssl
